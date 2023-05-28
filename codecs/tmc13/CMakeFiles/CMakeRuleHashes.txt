@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+e42698c9b1967fe74d1ee22827852c96 tmc3/CMakeFiles/genversion
+3d848ac8228eb9572b0dbbbf9cba8c14 tmc3/version.cpp

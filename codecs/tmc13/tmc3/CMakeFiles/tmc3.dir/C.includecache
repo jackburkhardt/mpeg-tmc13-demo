@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jrb2141/mpeg-tmc13-demo/codecs/gpcc/dependencies/schroedinger/schroarith.c
+string.h
+-
+schroarith.h
+/home/jrb2141/mpeg-tmc13-demo/codecs/gpcc/dependencies/schroedinger/schroarith.h
+
+/home/jrb2141/mpeg-tmc13-demo/codecs/gpcc/dependencies/schroedinger/schroarith.h
+stdint.h
+-
+
