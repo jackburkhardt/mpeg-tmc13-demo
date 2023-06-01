@@ -4,6 +4,7 @@ import sys
 import os
 import subprocess
 import open3d as o3d
+import time
 
 in_conn = None
 src_port = 0
@@ -82,7 +83,6 @@ def decode(data):
     if display: display_frames(decoded_frames)
 
 def encode(src_path):
-    # get list of paths every .ply file in the directory
     paths = []
     for filename in os.listdir(src_path):
         if filename.endswith(".ply"):
@@ -94,11 +94,44 @@ def encode(src_path):
     counter = 1
     for path in paths:
         out = subprocess.run(["cd /codecs/tmc13/tmc3 && ./tmc3 --mode=0 --uncompressedDataPath=\"" + path + "\" --compressedStreamPath=\"/dev/stdout\""], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        queue.append(out.stdout + b"\0")
+        queue.append(out.stdout + b"\0") # null bytes are used to separate frames
         sys.stdout.write("Encoded frame " + str(counter) + " of " + str(len(paths)) + "\n")
         counter += 1
 
     send_buffer(queue)
+
+def display_frames_from_file(path):
+    # convert the frames to point clouds
+    point_clouds = []
+    paths = []
+
+    for filename in os.listdir(path):
+        if filename.endswith(".ply"):
+            paths.append(os.path.join(path, filename))
+        else:
+            continue
+    
+    for path in paths:
+        pcd = o3d.io.read_point_cloud(path)
+        point_clouds.append(pcd)
+
+    vis = o3d.visualization.Visualizer()
+    vis.create_window()
+
+    for pc in point_clouds:
+        # clear the visualizer
+        vis.clear_geometries()
+        # transform to face upwards and flip 180 degrees
+        pc.transform([[1, 0, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0], [0,0,0,1]])
+        vis.add_geometry(pc)
+
+
+        
+        
+        vis.poll_events()
+        vis.update_renderer()
+
+    #vis.destroy_window()
     
 def display_frames(frames):
     # convert the frames to point clouds
@@ -121,6 +154,8 @@ def display_frames(frames):
     vis.destroy_window()
 
 if __name__ == '__main__':
+    display_frames_from_file("datasets/sarah9")
+
     if len(sys.argv) < 4: 
         sys.stderr.write("Usage: python3 server.py <int: src_port> <int: dst_port> <bool: display_on_receive> <string (optional): path_to_point_clouds>\n")
         sys.exit(8)
